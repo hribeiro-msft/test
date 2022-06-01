@@ -1,0 +1,70 @@
+{
+ "properties": {
+  "displayName": "Test-2205090050002140-DenyPolicy1",
+  "policyType": "Custom",
+  "mode": "All",
+  "description": "Policy related with SR 2205090050002140 that will apply the remediations",
+  "metadata": {
+   "category": "2205090050002140",
+   "createdBy": "38ddc934-ff62-4be9-bb50-455c511cbf72",
+   "createdOn": "2022-05-12T11:02:43.3377963Z",
+   "updatedBy": "38ddc934-ff62-4be9-bb50-455c511cbf72",
+   "updatedOn": "2022-05-23T11:00:42.8121792Z"
+  },
+  "parameters": {
+   "effect": {
+    "type": "String",
+    "metadata": {
+     "displayName": "Effect",
+     "description": "The effect determines what happens when the policy rule is evaluated to match"
+    },
+    "allowedValues": [
+     "Audit",
+     "Deny",
+     "Disabled"
+    ],
+    "defaultValue": "Audit"
+   }
+  },
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "equals": "Microsoft.Storage/storageAccounts"
+     },
+     {
+      "not": {
+       "value": "[substring(field('name'), 0, 4)]",
+       "equals": "umsa"
+      }
+     },
+     {
+      "field": "Microsoft.Storage/storageAccounts/allowBlobPublicAccess",
+      "notEquals": "false"
+     },
+     {
+      "not": {
+       "anyOf": [
+        {
+         "field": "[concat('tags[', 'DatabricksEnvironment', ']')]",
+         "exists": "true"
+        },
+        {
+         "field": "[concat('tags[', 'databricks-environment', ']')]",
+         "exists": "true"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "then": {
+    "effect": "[parameters('effect')]"
+   }
+  }
+ },
+ "id": "/subscriptions/99894b1f-b12f-43c5-81b2-1183e11612b3/providers/Microsoft.Authorization/policyDefinitions/3966c191-aa4e-4a3e-b126-1ae0f2cfcaec",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "3966c191-aa4e-4a3e-b126-1ae0f2cfcaec"
+}

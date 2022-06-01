@@ -1,0 +1,43 @@
+{
+ "properties": {
+  "displayName": "TEST - Allowed locations",
+  "policyType": "Custom",
+  "mode": "Indexed",
+  "description": "TEST - This policy enables you to restrict the locations your organization can specify when deploying resources.",
+  "metadata": {
+   "version": "1.0.0",
+   "category": "Locations",
+   "createdBy": "703a5c71-b75e-4f6b-8e39-ee48232e95f4",
+   "createdOn": "2022-05-10T15:56:08.564747Z",
+   "updatedBy": null,
+   "updatedOn": null
+  },
+  "parameters": {
+   "allowedLocations": {
+    "type": "array",
+    "metadata": {
+     "description": "The list of locations that can be specified when deploying resources",
+     "strongType": "location",
+     "displayName": "Allowed locations"
+    },
+    "defaultValue": [
+     "westus2"
+    ]
+   }
+  },
+  "policyRule": {
+   "if": {
+    "not": {
+     "field": "location",
+     "in": "[parameters('allowedLocations')]"
+    }
+   },
+   "then": {
+    "effect": "deny"
+   }
+  }
+ },
+ "id": "/subscriptions/99894b1f-b12f-43c5-81b2-1183e11612b3/providers/Microsoft.Authorization/policyDefinitions/Test-LocationDefinition",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "Test-LocationDefinition"
+}

@@ -1,0 +1,157 @@
+{
+ "properties": {
+  "displayName": "Test-2205090050002140-RotateStorageKey",
+  "policyType": "Custom",
+  "mode": "All",
+  "description": "SR: 2205090050002140",
+  "metadata": {
+   "category": "2205090050002140",
+   "createdBy": "38ddc934-ff62-4be9-bb50-455c511cbf72",
+   "createdOn": "2022-05-12T11:07:00.8856399Z",
+   "updatedBy": "38ddc934-ff62-4be9-bb50-455c511cbf72",
+   "updatedOn": "2022-05-23T10:38:04.8108349Z"
+  },
+  "parameters": {
+   "keyRotationInDays": {
+    "type": "Integer",
+    "metadata": {
+     "displayName": "Storage Key Rotation Policy in Days",
+     "description": "Storage Key Rotation Policy in Days"
+    },
+    "defaultValue": 2
+   },
+   "tagName": {
+    "type": "String",
+    "metadata": {
+     "displayName": "Tag Name",
+     "description": "Name of the tag, such as 'environment'"
+    }
+   },
+   "tagValue": {
+    "type": "String",
+    "metadata": {
+     "displayName": "Tag Value",
+     "description": "Value of the tag, such as 'production'"
+    }
+   },
+   "effect": {
+    "type": "String",
+    "metadata": {
+     "displayName": "Effect",
+     "description": "Enable or disable the execution of the policy"
+    },
+    "allowedValues": [
+     "DeployIfNotExists",
+     "Disabled"
+    ],
+    "defaultValue": "DeployIfNotExists"
+   }
+  },
+  "policyRule": {
+   "if": {
+    "allOf": [
+     {
+      "field": "type",
+      "equals": "Microsoft.Storage/storageAccounts"
+     },
+     {
+      "value": "[resourceGroup().tags[parameters('tagName')]]",
+      "equals": "[parameters('tagValue')]"
+     },
+     {
+      "not": {
+       "value": "[substring(field('name'), 0, 4)]",
+       "equals": "umsa"
+      }
+     },
+     {
+      "not": {
+       "anyOf": [
+        {
+         "field": "[concat('tags[', 'DatabricksEnvironment', ']')]",
+         "exists": "true"
+        },
+        {
+         "field": "[concat('tags[', 'databricks-environment', ']')]",
+         "exists": "true"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "then": {
+    "effect": "[parameters('effect')]",
+    "details": {
+     "type": "Microsoft.Storage/storageAccounts",
+     "roleDefinitionIds": [
+      "/providers/Microsoft.Authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+     ],
+     "existenceCondition": {
+      "allOf": [
+       {
+        "field": "Microsoft.Storage/storageAccounts/keyPolicy.keyExpirationPeriodInDays",
+        "exists": "true"
+       },
+       {
+        "field": "Microsoft.Storage/storageAccounts/keyPolicy.keyExpirationPeriodInDays",
+        "equals": "[parameters('keyRotationInDays')]"
+       }
+      ]
+     },
+     "deployment": {
+      "properties": {
+       "mode": "incremental",
+       "template": {
+        "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+         "storageAccountName": {
+          "type": "string"
+         },
+         "location": {
+          "type": "string"
+         },
+         "keyRotationInDays": {
+          "type": "int"
+         }
+        },
+        "resources": [
+         {
+          "apiVersion": "2021-08-01",
+          "type": "Microsoft.Storage/storageAccounts",
+          "name": "[concat(parameters('storageAccountName'))]",
+          "location": "[concat(parameters('location'))]",
+          "tags": {
+           "debug": "1"
+          },
+          "properties": {
+           "keyPolicy": {
+            "keyExpirationPeriodInDays": "[parameters('keyRotationInDays')]"
+           },
+           "allowBlobPublicAccess": true
+          }
+         }
+        ]
+       },
+       "parameters": {
+        "storageAccountName": {
+         "value": "[field('name')]"
+        },
+        "location": {
+         "value": "[field('location')]"
+        },
+        "keyRotationInDays": {
+         "value": "[parameters('keyRotationInDays')]"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "id": "/subscriptions/99894b1f-b12f-43c5-81b2-1183e11612b3/providers/Microsoft.Authorization/policyDefinitions/3966c191-aa4e-4a3e-b126-1ae0f2cfcaf6",
+ "type": "Microsoft.Authorization/policyDefinitions",
+ "name": "3966c191-aa4e-4a3e-b126-1ae0f2cfcaf6"
+}
